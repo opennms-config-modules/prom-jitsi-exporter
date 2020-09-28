@@ -1,0 +1,25 @@
+version: 2.1
+
+executors:
+  maven-executor:
+    docker:
+      - image: opennms/maven:1.8.0.242.b08-3.6.3-b3863
+
+workflows:
+  # Run build-jobs for all branches and any tag
+  build-jobs:
+    jobs:
+      - build
+
+jobs:
+  build:
+    executor: maven-executor
+    steps:
+      - checkout
+      - run:
+          name: Build configuration module
+          command: |
+            mvn install
+      - store_artifacts:
+          path: ./plugin/target/prom-jitsi-exporter-plugin-1.0.0-SNAPSHOT.jar
+          destination: prom-jitsi-exporter-plugin.jar

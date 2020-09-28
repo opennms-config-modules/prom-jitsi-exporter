@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<prometheus-datacollection-config>
+   <collection name="jitsi_exporter">
+     <rrd step="10">
+       <rra>RRA:AVERAGE:0.5:1:2016</rra>
+       <rra>RRA:AVERAGE:0.5:12:1488</rra>
+       <rra>RRA:AVERAGE:0.5:288:366</rra>
+       <rra>RRA:MAX:0.5:288:366</rra>
+       <rra>RRA:MIN:0.5:288:366</rra>
+     </rrd>
+
+     <group-ref>node_exporter_cpus</group-ref>
+   </collection>
+
+   <group name="node_exporter_loadavg"
+     resource-type="node"
+     filter-exp="name matches 'node_load.*'">
+    
+     <numeric-attribute alias-exp="name.substring('node_'.length())"/>
+   </group>
+
+   <!--
+      node_memory_Active 1.3626548224e+10
+      node_memory_Active_anon 6.314020864e+09
+      node_memory_Active_file 7.31252736e+09
+      ...
+      node_memory_HugePages_Free 0
+      ...
+   -->
+   <group name="node_exporter_memory"
+     resource-type="node"
+     filter-exp="name matches 'node_memory_.*'">
+
+     <numeric-attribute alias-exp="name.substring('node_memory_'.length())"/>
+   </group>
+
+   <!--
+      node_cpu{cpu="cpu0",mode="guest"} 0
+      node_cpu{cpu="cpu0",mode="idle"} 16594.88
+      ...
+      node_cpu{cpu="cpu1",mode="guest"} 0
+      node_cpu{cpu="cpu1",mode="idle"} 17790.51
+   -->
+   <group name="node_exporter_cpus"
+     resource-type="nodeExporterCpu"
+     filter-exp="name matches 'node_cpu_.*'"
+     group-by-exp="labels[cpu]">
+
+     <numeric-attribute alias-exp="name.substring('node_cpu_'.length()) + '_' + labels[mode]"/>
+     <string-attribute alias="cpu" value-exp="labels[cpu]"/>
+   </group>
+
+   <!--
+      node_disk_bytes_read{device="dm-0"} 2.53952e+06
+      node_disk_bytes_read{device="dm-1"} 1.792955392e+09
+      ...
+      node_disk_bytes_written{device="dm-0"} 1.318912e+06
+      node_disk_bytes_written{device="dm-1"} 8.90744832e+08
+   -->
+   <group name="node_exporter_disks"
+     resource-type="nodeExporterDisk"
+     filter-exp="name matches 'node_disk_.*'"
+     group-by-exp="labels[device]">
+
+     <numeric-attribute alias-exp="name.substring('node_disk_'.length())"/>
+     <string-attribute alias="device" value-exp="labels[device]"/>
+
+   </group>
+
+   <!--
+     node_filesystem_avail{device="/dev/sda1",fstype="vfat",mountpoint="/rootfs/boot/efi"} 1.99569408e+08
+     node_filesystem_avail{device="/dev/sda2",fstype="ext4",mountpoint="/rootfs/boot"} 7.78985472e+08
+     ...
+     node_filesystem_files{device="/dev/sda1",fstype="vfat",mountpoint="/rootfs/boot/efi"} 0
+     node_filesystem_files{device="/dev/sda2",fstype="ext4",mountpoint="/rootfs/boot"} 65536
+   -->
+   <group name="node_exporter_filesystems"
+     resource-type="nodeExporterFilesystem"
+     filter-exp="name matches 'node_filesystem_.*' and (not (labels[mountpoint] matches '/run.*'))"
+     group-by-exp="labels[mountpoint]">
+
+     <numeric-attribute alias-exp="name.substring('node_'.length())"/>
+     <string-attribute alias="mountpoint" value-exp="labels[mountpoint]"/>
+   </group>
+
+   <!--
+     node_netstat_IpExt_InOctets 4.0950776901e+10
+     node_netstat_IpExt_OutOctets 5.895420917e+09
+     node_netstat_Ip_Forwarding 1
+     node_netstat_TcpExt_ListenDrops 0
+     node_netstat_TcpExt_ListenOverflows 0
+   -->
+   <group name="node_exporter_netstat"
+     resource-type="node"
+     filter-exp="name matches 'node_netstat_.*'">
+    
+     <numeric-attribute alias-exp="name.substring('node_'.length())"/>
+   </group>
+
+   <!--
+     node_sockstat_FRAG6_memory 0
+     node_sockstat_FRAG_inuse 0
+     node_sockstat_FRAG_memory 0
+     node_sockstat_RAW6_inuse 1
+     node_sockstat_RAW_inuse 0
+     node_sockstat_TCP6_inuse 11
+   -->
+   <group name="node_exporter_sockstat"
+     resource-type="node"
+     filter-exp="name matches 'node_sockstat_.*'">
+    
+     <numeric-attribute alias-exp="name.substring('node_'.length())"/>
+   </group>
+
+   <!--
+     node_timex_estimated_error_seconds 0.000172
+     node_timex_frequency_adjustment_ratio 1.0000367144012452
+     node_timex_loop_time_constant 10
+     node_timex_maxerror_seconds 0.068022
+   -->
+   <group name="node_exporter_timex"
+     resource-type="node"
+     filter-exp="name matches 'node_time.*'">
+    
+     <numeric-attribute alias-exp="name.substring('node_'.length())"/>
+   </group>
+
+   <!--
+     node_network_iface_id{device="veth3edc17d"} 312
+     node_network_iface_id{device="vethaa78d75"} 310
+     node_network_iface_id{device="vethdd19a14"} 314
+     node_network_iface_link{device="br-90f3224a7885"} 308
+     node_network_iface_link{device="docker0"} 3
+     node_network_iface_link{device="ens18"} 2
+     node_network_iface_link{device="lo"} 1
+     node_network_receive_frame_total{device="vethaa78d75"} 0
+     node_network_receive_frame_total{device="vethdd19a14"} 0
+     node_network_receive_multicast_total{device="br-90f3224a7885"} 0
+   -->
+   <group name="node_exporter_network"
+     resource-type="nodeExporterNetwork"
+     filter-exp="name matches 'node_network_.*'"
+     group-by-exp="labels[device]">
+
+     <numeric-attribute alias-exp="name.substring('node_network_'.length())"/>
+     <string-attribute alias="device" value-exp="labels[device]"/>
+   </group>
+
+   <!--
+     go_gc_duration_seconds_sum 3.360487897
+     go_gc_duration_seconds_count 19172
+     go_goroutines 9
+     go_info{version="go1.13.8"} 1
+     go_memstats_alloc_bytes 3.22536e+06
+   -->
+
+   <!--
+   <group name="node_exporter_go"
+     resource-type="node"
+     filter-exp="name matches 'go_.*'">
+    
+     <numeric-attribute alias-exp="name"/>
+   </group>
+   -->
+
+  <!--
+    process_cpu_seconds_total 448.4
+    process_max_fds 1024
+    process_open_fds 7
+  -->
+
+   <group name="node_exporter_process"
+     resource-type="node"
+     filter-exp="name matches 'process_.*'">
+    
+     <numeric-attribute alias-exp="name"/>
+   </group>
+
+  <!--
+    node_hwmon_temp_celsius{chip="thermal_thermal_zone1",sensor="temp1"} 42.5
+    node_hwmon_temp_celsius{chip="thermal_thermal_zone2",sensor="temp0"} 31
+    node_hwmon_temp_celsius{chip="thermal_thermal_zone2",sensor="temp1"} 31
+    node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="temp1"} 0
+    node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="temp2"} 0
+  -->
+
+   <!--
+   <group name="node_exporter_hwmon"
+     resource-type="nodeExporterHwmon"
+     filter-exp="name matches 'node_hwmon_temp_.*'"
+     group-by-exp="labels[chip]">
+    
+     <numeric-attribute alias-exp="name.substring('node_hwmon_temp_'.length()) + '_' + labels[sensor]"/>
+     <string-attribute alias="sensor" value-exp="labels[sensor]"/>
+
+   </group>
+   -->
+   <!--
+     node_schedstat_running_seconds_total{cpu="8"} 16833.132223289
+     node_schedstat_running_seconds_total{cpu="9"} 16558.140752303
+     node_schedstat_timeslices_total{cpu="0"} 1.64334204e+08
+     node_schedstat_timeslices_total{cpu="1"} 1.56843272e+08
+   -->
+
+   <!--
+   <group name="node_exporter_schedstat"
+     resource-type="nodeExporterSchedstat"
+     filter-exp="name matches 'node_schedstat_.*'">
+   
+     <numeric-attribute alias-exp="name.substring('node_schedstat_'.length())"/>
+   </group>
+   -->
+</prometheus-datacollection-config>
